@@ -18,3 +18,5 @@ The scientific reference environment uses CPython 3.12, QuantLib 1.44, CurveMetr
 The full financial scope, assumptions, external comparisons and tests for all fifteen areas are listed in [methodology](methodology.md) and [traceability](traceability.md). The detection sample measures sensitivity to the injected contamination. Results do not establish performance on a proprietary historical market dataset. The analytic SSVI result is restricted to its documented family. Continuous repair, global raw-SVI certification, extended SSVI, stochastic rates, American and exotic options and production local-volatility calibration are outside the approved scope.
 
 [Scientific reference run](https://github.com/Phasetensor/SurfaceCheck/actions/runs/46019927549). Release publication, cross-registry digests and installation from the public index require separate post-publication evidence.
+
+Verified revision `2aecbb5eb6bf255db8cd899af1ac4ef5da02188f`. [CI evidence](https://github.com/Phasetensor/SurfaceCheck/actions/runs/46020728675).
