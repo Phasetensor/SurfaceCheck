@@ -1,14 +1,35 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "surfacecheck"
 version = "0.1.0"
-description = "Single-expiry European call quote shape checks within bid-ask spreads"
+description = "European implied volatility surface validation, static arbitrage diagnostics, SVI/SSVI calibration, and quantitative model-risk analysis"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["scipy>=1.10"]
+dependencies = ["numpy>=1.24", "scipy>=1.10"]
+license = "Apache-2.0"
+authors = [{name = "PhaseTensor"}]
+keywords = ["implied volatility", "static arbitrage", "SVI", "risk-neutral density", "model validation"]
+classifiers = ["Intended Audience :: Science/Research", "Topic :: Scientific/Engineering :: Mathematics", "Typing :: Typed"]
 
 [project.urls]
 Repository = "https://github.com/Phasetensor/SurfaceCheck"
+
+[project.optional-dependencies]
+validation = ["pytest", "coverage>=7.6", "hypothesis", "ruff==0.14.3", "mypy", "build", "twine", "matplotlib", "QuantLib", "curvemetric==1.5.0", "vintagecheck==0.4.0"]
+
+[tool.setuptools.package-data]
+surfacecheck = ["py.typed"]
+
+[tool.setuptools.packages.find]
+include = ["surfacecheck*"]
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.coverage.run]
+branch = true
+source = ["surfacecheck"]
