@@ -1,0 +1,22 @@
+name: Promote approved v0.1.0
+on:
+  push:
+    branches: [release-ops-v0.1.0]
+    paths: [.github/workflows/promote.yml]
+permissions:
+  contents: write
+  actions: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: b5b68cb0c64a75db4f0758975ed940be80286bed
+      - name: Tag approved revision and run publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag v0.1.0
+          git push origin refs/tags/v0.1.0
+          gh workflow run publish.yml --ref v0.1.0
