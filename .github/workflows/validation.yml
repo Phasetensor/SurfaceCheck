@@ -32,11 +32,26 @@ jobs:
       - run: mypy surfacecheck
         if: always()
       - run: coverage run -m pytest -q
+        if: always()
       - run: coverage json -o coverage.json
+        if: always()
       - run: coverage report -m && python benchmarks/coverage_gate.py
+        if: always()
       - run: ruff check . && ruff format --check .
+        if: always()
       - run: python -m build && twine check --strict dist/*
+        if: always()
+      - name: Verify clean wheel and source installations
+        if: always()
+        run: |
+          for archive in "$GITHUB_WORKSPACE"/dist/*; do
+            envdir=$(mktemp -d)
+            python -m venv "$envdir"
+            "$envdir/bin/pip" install "$archive"
+            (cd /tmp && "$envdir/bin/python" -I -c 'from surfacecheck.pricing import black; assert 7 < black(100,100,1,1,.2) < 9')
+          done
       - run: python benchmarks/cases.py
+        if: always()
       - uses: actions/upload-artifact@v4
         with:
           name: validation-evidence
