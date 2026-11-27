@@ -1,0 +1,39 @@
+name: Verify public release
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/verify-release.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify published distributions against build manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')
+          gh release download "v$version" --dir assets
+          cd assets
+          sha256sum -c SHA256SUMS
+          python - "$version" <<'PY'
+          import hashlib,json,pathlib,sys,urllib.request
+          manifest={name:digest for digest,name in (line.split() for line in pathlib.Path('SHA256SUMS').read_text().splitlines())}
+          with urllib.request.urlopen('https://pypi.org/pypi/surfacecheck/'+sys.argv[1]+'/json') as response:
+              files=json.load(response)['urls']
+          assert {f['filename'] for f in files}==set(manifest)
+          for f in files:
+              with urllib.request.urlopen(f['url']) as response:
+                  assert hashlib.sha256(response.read()).hexdigest()==manifest[f['filename']]==f['digests']['sha256']
+              print(f['filename'],manifest[f['filename']])
+          PY
+          cd /tmp
+          python -m venv public-install
+          public-install/bin/pip install --index-url https://pypi.org/simple "surfacecheck==$version"
+          public-install/bin/python -I -c 'from surfacecheck.pricing import black; from importlib.metadata import version; assert 7 < black(100,100,1,1,.2) < 9; print(version("surfacecheck"))'

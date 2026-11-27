@@ -56,7 +56,7 @@ jobs:
           version=os.environ['GITHUB_REF_NAME'][1:]
           with urllib.request.urlopen(f'https://pypi.org/pypi/surfacecheck/{version}/json') as res:
               public={item['filename']:item['digests']['sha256'] for item in json.load(res)['urls']}
-          local={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in pathlib.Path('dist').iterdir()}
+          local={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in pathlib.Path('dist').iterdir() if p.name.endswith(('.whl','.tar.gz'))}
           assert local == public
           PY
           cd /tmp
