@@ -5,7 +5,9 @@ import numpy as np
 from scipy.optimize import linprog
 
 
-def check_slice(strikes: ArrayLike, bids: ArrayLike, asks: ArrayLike, discount: float=1.0) -> dict:
+def check_slice(
+    strikes: ArrayLike, bids: ArrayLike, asks: ArrayLike, discount: float = 1.0
+) -> dict:
     """Test strike shape, returning midpoint violations and feasible prices."""
     k, bid, ask = (np.asarray(x, dtype=float) for x in (strikes, bids, asks))
     if k.ndim != 1 or len(k) < 2 or bid.shape != k.shape or ask.shape != k.shape:

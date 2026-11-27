@@ -6,6 +6,7 @@ from surfacecheck.pricing import black, implied_vol
 h = pytest.importorskip("hypothesis")
 given, settings, st = h.given, h.settings, h.strategies
 
+
 @given(st.floats(75, 130), st.floats(0.15, 0.8), st.floats(0.2, 2))
 @settings(max_examples=100, deadline=None, derandomize=True)
 def test_black_properties(k, sigma, t):

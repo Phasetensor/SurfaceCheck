@@ -69,7 +69,7 @@ def repair(
         np.zeros(len(s) - 1),
     ]
     mid = b / 2 + a / 2
-    residual = A @ mid - h
+    residual = np.einsum("ij,j->i", A, mid) - h
     base = dict(
         original=mid,
         bids=b,
@@ -106,7 +106,7 @@ def repair(
         options={"ftol": 1e-12, "maxiter": 1000},
     )
     p = result.x
-    err = float(max(0, max(A @ p - h), max(b - p), max(p - a)))
+    err = float(max(0, max(np.einsum("ij,j->i", A, p) - h), max(b - p), max(p - a)))
     if not result.success or not np.isfinite(p).all() or err > tol:
         return dict(
             base, status="numerical_failure", solver=result.message, max_residual=err
@@ -152,14 +152,16 @@ def calendar(
     if not 0 < t1 < t2 or not np.isfinite([t1, t2, tol]).all() or tol < 0:
         raise ValueError("Invalid maturities or tolerance")
     for z, lo, hi in ((x, early_low, early_high), (y, late_low, late_high)):
-        l, u = vector(lo), vector(hi)
-        if l.shape != z.shape or u.shape != z.shape or np.any(l < 0) or np.any(u < l):
+        lower, upper = vector(lo), vector(hi)
+        if lower.shape != z.shape or upper.shape != z.shape or np.any(lower < 0) or np.any(upper < lower):
             raise ValueError("Invalid variance intervals")
     nodes = np.union1d(x, y)
     nodes = nodes[(nodes >= max(x[0], y[0])) & (nodes <= min(x[-1], y[-1]))]
     if not same_normalized_martingale or not nodes.size:
         return dict(status="insufficient_evidence")
-    gap = np.interp(nodes, y, vector(late_high)) - np.interp(nodes, x, vector(early_low))
+    gap = np.interp(nodes, y, vector(late_high)) - np.interp(
+        nodes, x, vector(early_low)
+    )
     direct = np.isin(nodes, x) & np.isin(nodes, y)
     return dict(
         status="interval_violation"

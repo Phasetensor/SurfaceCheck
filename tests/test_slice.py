@@ -10,6 +10,11 @@ def test_slice():
 
 def test_invalid_legacy_inputs():
     import pytest
-    for strikes,bids,asks in [([1],[1],[1]),([1,2],[1,1],[1,float("nan")]),([2,1],[1,1],[1,1])]:
+
+    for strikes, bids, asks in [
+        ([1], [1], [1]),
+        ([1, 2], [1, 1], [1, float("nan")]),
+        ([2, 1], [1, 1], [1, 1]),
+    ]:
         with pytest.raises(ValueError):
-            check_slice(strikes,bids,asks)
+            check_slice(strikes, bids, asks)

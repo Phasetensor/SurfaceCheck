@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "Please cite the commit used for reproducible results."
+title: SurfaceCheck
+type: software
+authors:
+  - name: PhaseTensor
+repository-code: https://github.com/Phasetensor/SurfaceCheck
+license: Apache-2.0
+version: 0.1.0
