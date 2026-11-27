@@ -232,13 +232,23 @@ def run(output: Path, integrated: bool = True) -> dict:
         repair_max_adjustment=max(abs(fixed["adjustments"])),
         local_vol_max_error=np.max(abs(np.sqrt(lv["variance"][:, safe]) - 0.2)),
     )
-    noisy_calls=prices+rng.normal(0,.008,prices.shape)
-    noisy_lv=local_variance(strikes,times,noisy_calls,np.zeros_like(times),np.zeros_like(times))
-    results["noise_stress"]=dict(invalid_gamma=int(np.sum(noisy_lv["invalid"][:,safe])),negative_variance=int(np.sum(noisy_lv["variance"][:,safe]<0)),negative_density_nodes=len(density(strikes,noisy_calls[10],1)["negative"]))
-    independent=100*norm.cdf((np.log(100/strikes)+.02)/.2)-strikes*norm.cdf((np.log(100/strikes)-.02)/.2)
-    ivs=[implied_vol(p,100,s,1,1) for p,s in zip(independent,strikes)]
-    results["price_max_error"]=max(abs(independent-true))
-    results["identified_iv_max_error"]=max(abs(o.volatility-.2) for o in ivs if o.volatility is not None)
+    noisy_calls = prices + rng.normal(0, 0.008, prices.shape)
+    noisy_lv = local_variance(
+        strikes, times, noisy_calls, np.zeros_like(times), np.zeros_like(times)
+    )
+    results["noise_stress"] = dict(
+        invalid_gamma=int(np.sum(noisy_lv["invalid"][:, safe])),
+        negative_variance=int(np.sum(noisy_lv["variance"][:, safe] < 0)),
+        negative_density_nodes=len(density(strikes, noisy_calls[10], 1)["negative"]),
+    )
+    independent = 100 * norm.cdf(
+        (np.log(100 / strikes) + 0.02) / 0.2
+    ) - strikes * norm.cdf((np.log(100 / strikes) - 0.02) / 0.2)
+    ivs = [implied_vol(p, 100, s, 1, 1) for p, s in zip(independent, strikes)]
+    results["price_max_error"] = max(abs(independent - true))
+    results["identified_iv_max_error"] = max(
+        abs(o.volatility - 0.2) for o in ivs if o.volatility is not None
+    )
     if integrated:
         import curvemetric as cm
 
@@ -251,16 +261,18 @@ def run(output: Path, integrated: bool = True) -> dict:
         rows.append(
             dict(base, series="call", value=19, available_at="2025-01-01T00:01:00Z")
         )
-        listed=np.arange(80.,125.,5.)
+        listed = np.arange(80.0, 125.0, 5.0)
         for strike in listed:
-            price=black(100*np.exp(.02),strike,1,np.exp(-.03),.22)
-            rows.append(dict(base,series=f"chain-{strike:g}",value=price))
-        atm=next(r for r in rows if r["series"]=="chain-100")
-        rows.append(dict(atm,value=atm["value"]+2,available_at="2025-01-01T00:01:00Z"))
+            price = black(100 * np.exp(0.02), strike, 1, np.exp(-0.03), 0.22)
+            rows.append(dict(base, series=f"chain-{strike:g}", value=price))
+        atm = next(r for r in rows if r["series"] == "chain-100")
+        rows.append(
+            dict(atm, value=atm["value"] + 2, available_at="2025-01-01T00:01:00Z")
+        )
         selection = {r["series"]: r for r in historical_snapshot(rows, stamp)}
-        future={r["series"]:r for r in rows}
+        future = {r["series"]: r for r in rows}
 
-        def invert(shift,selected):
+        def invert(shift, selected):
             curve = cm.Curve(
                 [1],
                 [np.exp(-float(selection["rate"]["value"]) - shift)],
@@ -278,17 +290,31 @@ def run(output: Path, integrated: bool = True) -> dict:
                 float(selection["spot"]["value"]),
                 float(selection["dividend"]["value"]),
             )
-            mids=np.array([float(selected[f"chain-{strike:g}"]["value"]) for strike in listed])
-            iv=np.array([implied_vol(p,f,strike,t,d).volatility for p,strike in zip(mids,listed)])
-            fit=fit_svi(np.log(listed/f),t*iv**2)
-            return dict(single_iv=implied_vol(float(selected["call"]["value"]),f,100,t,d).volatility,atm_iv=iv[4],rmse=fit["rmse"],slice_status=repair(listed,mids,mids,f,d)["status"])
+            mids = np.array(
+                [float(selected[f"chain-{strike:g}"]["value"]) for strike in listed]
+            )
+            iv = np.array(
+                [
+                    implied_vol(p, f, strike, t, d).volatility
+                    for p, strike in zip(mids, listed)
+                ]
+            )
+            fit = fit_svi(np.log(listed / f), t * iv**2)
+            return dict(
+                single_iv=implied_vol(
+                    float(selected["call"]["value"]), f, 100, t, d
+                ).volatility,
+                atm_iv=iv[4],
+                rmse=fit["rmse"],
+                slice_status=repair(listed, mids, mids, f, d)["status"],
+            )
 
         results["historical_case"] = dict(
             selected_call=selection["call"],
             excluded_future_price=19,
-            eligible=invert(0,selection),
-            rate_plus_10bp=invert(.001,selection),
-            contaminated=invert(0,future),
+            eligible=invert(0, selection),
+            rate_plus_10bp=invert(0.001, selection),
+            contaminated=invert(0, future),
         )
     results.update(
         runtime_seconds=time.perf_counter() - start,
@@ -306,8 +332,38 @@ def run(output: Path, integrated: bool = True) -> dict:
             coordinates="log(K/F)",
             discounting="deterministic",
         ),
-        dict(metrics=results,model=fit["model"],objective=fit["objective"],calibration_residuals=fit["residuals"],solver=fit["solver"],stability=risk,repair=fixed,density=den,local_variance=lv,stress=shock,limitations=["Synthetic inputs","Finite strike support","Sampled raw SVI diagnostics"],evidence={"stressed_calendars":"confirmed_violation","baseline_slices":"no_violation_detected_within_checks","global_raw_svi":"insufficient_evidence"}),
-        dict(k=k,terms=terms,variance=variance,noisy_smile=noisy,repair_bids=fixed["bids"],repair_asks=fixed["asks"],historical_inputs=rows if integrated else [],seed=47),
+        dict(
+            metrics=results,
+            model=fit["model"],
+            objective=fit["objective"],
+            calibration_residuals=fit["residuals"],
+            solver=fit["solver"],
+            stability=risk,
+            repair=fixed,
+            density=den,
+            local_variance=lv,
+            stress=shock,
+            limitations=[
+                "Synthetic inputs",
+                "Finite strike support",
+                "Sampled raw SVI diagnostics",
+            ],
+            evidence={
+                "stressed_calendars": "confirmed_violation",
+                "baseline_slices": "no_violation_detected_within_checks",
+                "global_raw_svi": "insufficient_evidence",
+            },
+        ),
+        dict(
+            k=k,
+            terms=terms,
+            variance=variance,
+            noisy_smile=noisy,
+            repair_bids=fixed["bids"],
+            repair_asks=fixed["asks"],
+            historical_inputs=rows if integrated else [],
+            seed=47,
+        ),
     )
     for fmt in ("json", "csv", "html"):
         (output / f"validation.{fmt}").write_text(report.render(fmt))

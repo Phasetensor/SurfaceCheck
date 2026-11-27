@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from math import isfinite
 from .pricing import _inputs
 
@@ -32,6 +32,8 @@ class Quote:
             x.utcoffset() is None for x in (self.observed, self.available, self.expiry)
         ):
             raise ValueError("Timezone required")
+        for name in ("observed", "available", "expiry"):
+            object.__setattr__(self, name, getattr(self, name).astimezone(timezone.utc))
         if self.available < self.observed or self.expiry <= self.observed:
             raise ValueError("Inconsistent timestamps")
         if self.units != "currency_per_unit" or not all(
@@ -63,6 +65,8 @@ def snapshot(quotes: list[Quote], at: datetime, max_age: timedelta) -> list[Quot
 
 
 def parity(call: Quote, put: Quote | None, tol: float = 1e-10) -> str:
+    if not isfinite(tol) or tol < 0:
+        raise ValueError("Invalid parity tolerance")
     if put is None:
         return "insufficient_evidence"
     fields = (

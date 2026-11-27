@@ -115,33 +115,54 @@ def historical_pca(
     )
 
 
-def historical_summary(times: ArrayLike,vols: ArrayLike,k: ArrayLike,maturities: ArrayLike,parameters: ArrayLike | None=None) -> dict:
+def historical_summary(
+    times: ArrayLike,
+    vols: ArrayLike,
+    k: ArrayLike,
+    maturities: ArrayLike,
+    parameters: ArrayLike | None = None,
+) -> dict:
     """Daily histories at fixed log-forward moneyness. Irregular dates keep period changes."""
-    clock=axis(times,3)
-    x,terms=axis(k),axis(maturities)
-    panel=np.asarray(vols,float)
-    if not x[0]<=0<=x[-1]:
+    clock = axis(times, 3)
+    x, terms = axis(k), axis(maturities)
+    panel = np.asarray(vols, float)
+    if not x[0] <= 0 <= x[-1]:
         raise ValueError("ATM must lie inside common support")
-    pca=historical_pca(clock,panel,x,terms)
-    atm=np.stack([[np.interp(0.,x,row) for row in day] for day in panel])
-    left=max(0,int(np.searchsorted(x,0.,side="left"))-1)
-    right=min(len(x)-1,int(np.searchsorted(x,0.,side="right")))
-    skew=(panel[:,:,right]-panel[:,:,left])/(x[right]-x[left])
-    history=None if parameters is None else np.asarray(parameters,float)
-    if history is not None and (history.ndim!=2 or len(history)!=len(clock) or not np.isfinite(history).all()):
+    pca = historical_pca(clock, panel, x, terms)
+    atm = np.stack([[np.interp(0.0, x, row) for row in day] for day in panel])
+    left = max(0, int(np.searchsorted(x, 0.0, side="left")) - 1)
+    right = min(len(x) - 1, int(np.searchsorted(x, 0.0, side="right")))
+    skew = (panel[:, :, right] - panel[:, :, left]) / (x[right] - x[left])
+    history = None if parameters is None else np.asarray(parameters, float)
+    if history is not None and (
+        history.ndim != 2
+        or len(history) != len(clock)
+        or not np.isfinite(history).all()
+    ):
         raise ValueError("Parameter history must align with snapshots")
-    return dict(times=clock,atm=atm,skew=skew,atm_changes=np.diff(atm,axis=0),skew_changes=np.diff(skew,axis=0),term_spreads=np.diff(atm,axis=1),parameters=history,pca=pca)
+    return dict(
+        times=clock,
+        atm=atm,
+        skew=skew,
+        atm_changes=np.diff(atm, axis=0),
+        skew_changes=np.diff(skew, axis=0),
+        term_spreads=np.diff(atm, axis=1),
+        parameters=history,
+        pca=pca,
+    )
 
 
-def align_smiles(grids: list[ArrayLike],vols: list[ArrayLike],target: ArrayLike) -> NDArray:
+def align_smiles(
+    grids: list[ArrayLike], vols: list[ArrayLike], target: ArrayLike
+) -> NDArray:
     """Interpolate each smile inside observed support; emit NaN for unsupported cells."""
-    if not grids or len(grids)!=len(vols):
+    if not grids or len(grids) != len(vols):
         raise ValueError("One volatility vector per smile required")
-    q=axis(target)
-    rows=[]
-    for grid,values in zip(grids,vols):
-        x,v=axis(grid),vector(values)
-        if x.shape!=v.shape or np.any(v<0):
+    q = axis(target)
+    rows = []
+    for grid, values in zip(grids, vols):
+        x, v = axis(grid), vector(values)
+        if x.shape != v.shape or np.any(v < 0):
             raise ValueError("Invalid smile")
-        rows.append(np.interp(q,x,v,left=np.nan,right=np.nan))
+        rows.append(np.interp(q, x, v, left=np.nan, right=np.nan))
     return np.stack(rows)

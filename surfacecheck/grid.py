@@ -153,7 +153,12 @@ def calendar(
         raise ValueError("Invalid maturities or tolerance")
     for z, lo, hi in ((x, early_low, early_high), (y, late_low, late_high)):
         lower, upper = vector(lo), vector(hi)
-        if lower.shape != z.shape or upper.shape != z.shape or np.any(lower < 0) or np.any(upper < lower):
+        if (
+            lower.shape != z.shape
+            or upper.shape != z.shape
+            or np.any(lower < 0)
+            or np.any(upper < lower)
+        ):
             raise ValueError("Invalid variance intervals")
     nodes = np.union1d(x, y)
     nodes = nodes[(nodes >= max(x[0], y[0])) & (nodes <= min(x[-1], y[-1]))]

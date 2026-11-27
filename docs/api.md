@@ -14,3 +14,7 @@
 | reporting | Report.render | Valuation, source, conventions, named evidence and inputs; JSON, CSV or escaped HTML |
 
 `check_slice` preserves the original strike-shape API when the forward is unavailable. Use `repair` to include forward-dependent price bounds. Quote selection rejects unresolved competing quotes; revision selection belongs upstream. Array-based numerical entry points expect inputs in the same conventions. The integration example checks conventions before extracting arrays.
+
+The independent references include QuantLib Black prices, a direct normal-CDF implementation, lognormal density and a vertex-enumeration feasibility check. SSVI calibration takes externally supplied ATM variances. Use ssvi_surface to validate their time ordering and interpolate them from the origin before attaching a sufficient-condition result.
+
+An absent put or incompatible normalized calendar hypothesis gives insufficient evidence. Disjoint calendar supports also give insufficient evidence. A failed solver should be reported separately from a mathematically infeasible spread. For local variance inspect both the denominator and invalid mask before using any derived volatility.

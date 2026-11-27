@@ -52,3 +52,7 @@ QuantLib supplies volatility structures, smile sections, regularization and a Bl
 ## Known limitations
 
 American exercise, stochastic discounting, discrete cash dividends, negative forwards, normal volatilities and exotic payoffs require other conventions or models. Bid and ask premiums must already be normalized per unit of underlying. Forecasting, trading and execution are outside scope. Dense grid optimization is intended for research-sized panels. No global raw-SVI certificate, continuous-surface repair, eSSVI fit, general covariance estimator, production local-volatility solver or proprietary historical dataset is supplied.
+
+## Time and unit conventions
+
+Timezone-aware quote timestamps are normalized to UTC. The quote year-fraction check uses elapsed UTC seconds divided by the fixed day-count denominator. For date-based CurveMetric workflows the adapter instead uses the explicit valuation and expiration dates. Resolve a venue's expiration clock before combining intraday and date-based data. Convert percent volatilities to decimals, basis points to rates and contract premiums to per-unit cash premiums upstream.

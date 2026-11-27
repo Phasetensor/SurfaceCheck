@@ -7,3 +7,5 @@
 5. After approval, build once from the tagged commit and publish the same files to GitHub and PyPI. Compare SHA-256 per filename with both remote services and install the exact public version in a clean environment.
 
 This development branch has no release tag or public distribution. A 404 for the normalized PyPI name only establishes the absence of a currently visible project.
+
+The release workflow validates tag/version agreement and ancestry on main. It builds one artifact bundle, checks its manifest immediately before upload, downloads the GitHub assets again and compares the PyPI digests by filename.

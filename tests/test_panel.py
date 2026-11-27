@@ -68,24 +68,29 @@ def test_wings_stresses():
 
 
 def test_history_alignment_and_certificate():
-    from surfacecheck.models import ssvi_surface,SSVI
-    from surfacecheck.diagnostics import historical_summary,align_smiles
-    common=[-.2,0,.2]
-    a=align_smiles([common,[-.1,.1]],[[.2]*3,[.21]*2],common)
-    assert np.isnan(a[1,0]) and a[1,1]==.21
-    for args in [([],[],common),([common],[[.2]],common)]:
+    from surfacecheck.models import ssvi_surface, SSVI
+    from surfacecheck.diagnostics import historical_summary, align_smiles
+
+    common = [-0.2, 0, 0.2]
+    a = align_smiles([common, [-0.1, 0.1]], [[0.2] * 3, [0.21] * 2], common)
+    assert np.isnan(a[1, 0]) and a[1, 1] == 0.21
+    for args in [([], [], common), ([common], [[0.2]], common)]:
         with pytest.raises(ValueError):
             align_smiles(*args)
-    panel=np.ones((4,2,3))*.2
-    result=historical_summary([1,2,3,4],panel,common,[.5,1],np.ones((4,5)))
-    np.testing.assert_allclose(result["atm"],.2)
-    np.testing.assert_allclose(result["skew"],0)
+    panel = np.ones((4, 2, 3)) * 0.2
+    result = historical_summary([1, 2, 3, 4], panel, common, [0.5, 1], np.ones((4, 5)))
+    np.testing.assert_allclose(result["atm"], 0.2)
+    np.testing.assert_allclose(result["skew"], 0)
     with pytest.raises(ValueError):
-        historical_summary([1,2,3,4],panel,[1,2,3],[.5,1])
+        historical_summary([1, 2, 3, 4], panel, [1, 2, 3], [0.5, 1])
     with pytest.raises(ValueError):
-        historical_summary([1,2,3,4],panel,common,[.5,1],[2])
-    model=SSVI(-.3,.6)
-    assert ssvi_surface(model,[.5,1],[.02,.04],common,[.25,.75])["sufficient_conditions_met"]
-    assert not ssvi_surface(model,[.5,1],[.04,.02],common,[.25,.75])["sufficient_conditions_met"]
+        historical_summary([1, 2, 3, 4], panel, common, [0.5, 1], [2])
+    model = SSVI(-0.3, 0.6)
+    assert ssvi_surface(model, [0.5, 1], [0.02, 0.04], common, [0.25, 0.75])[
+        "sufficient_conditions_met"
+    ]
+    assert not ssvi_surface(model, [0.5, 1], [0.04, 0.02], common, [0.25, 0.75])[
+        "sufficient_conditions_met"
+    ]
     with pytest.raises(ValueError):
-        ssvi_surface(model,[.5,1],[.04,.02],common,[2])
+        ssvi_surface(model, [0.5, 1], [0.04, 0.02], common, [2])

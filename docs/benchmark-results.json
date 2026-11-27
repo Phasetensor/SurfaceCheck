@@ -1,0 +1,98 @@
+{
+  "source_commit": "c132e3a6b685f3c6551412dc5aeeb6619fefcd82",
+  "source_run": "https://github.com/Phasetensor/SurfaceCheck/actions/runs/46019655743",
+  "synthetic": true,
+  "seed": 47,
+  "baseline": [
+    "mid_feasible",
+    "mid_feasible",
+    "mid_feasible"
+  ],
+  "stressed": [
+    "infeasible",
+    "mid_feasible",
+    "infeasible"
+  ],
+  "calendar_stressed": [
+    "interval_violation",
+    "interval_violation"
+  ],
+  "detection_cases": 80,
+  "precision": 1,
+  "recall": 1,
+  "unknown_rate": 0,
+  "svi_rmse": 0.00022206550101877673,
+  "ssvi_rmse": 2.5393751501269487e-18,
+  "svi_converged": true,
+  "ssvi_converged": true,
+  "sparse_condition": 78109.16869247715,
+  "parameter_sd": [
+    0.001789988152591022,
+    0.0029535414134605176,
+    0.013947061904360132,
+    0.00234729531988002,
+    0.010909391722410436
+  ],
+  "tail_variances": {
+    "flat_variance": [
+      0.096578537699872,
+      0.051615297467458354
+    ],
+    "linear_variance": [
+      0.3491538125829572,
+      0.1455123677613923
+    ]
+  },
+  "minimum_interpolated_slope_increment": {
+    "linear": -7.105427357601002e-15,
+    "pchip": -0.029941333333330933,
+    "cubic": -0.029200000000004278
+  },
+  "density_mass": 0.9997932735773821,
+  "density_mass_error": -0.00020672642261787555,
+  "first_moment_error": -0.04211803317721774,
+  "density_max_point_error": 0.000005170941962989034,
+  "negative_nodes_before": 1,
+  "minimum_density_after": -1.7763568394002505e-15,
+  "repair_max_residual": 3.552713678800501e-15,
+  "repair_max_adjustment": 0.30321105313212726,
+  "local_vol_max_error": 0.000034745728373114515,
+  "noise_stress": {
+    "invalid_gamma": 146,
+    "negative_variance": 0,
+    "negative_density_nodes": 58
+  },
+  "price_max_error": 3.907985046680551e-14,
+  "identified_iv_max_error": 5.324768403980329e-12,
+  "historical_case": {
+    "selected_call": {
+      "period": "2026",
+      "available_at": "2025-01-01T00:00:00+00:00",
+      "series": "call",
+      "value": "9",
+      "effective_at": "2025-01-01T00:00:00+00:00",
+      "record_sha256": "2d50eaf2f57dab7aebf083130354923f3826763fde5e45f41ecce506be0db687"
+    },
+    "excluded_future_price": 19,
+    "eligible": {
+      "single_iv": 0.2044602493974462,
+      "atm_iv": 0.22000000000000036,
+      "rmse": 1.370750547378104e-12,
+      "slice_status": "mid_feasible"
+    },
+    "rate_plus_10bp": {
+      "single_iv": 0.20320827506747455,
+      "atm_iv": 0.21876276442491632,
+      "rmse": 0.00012839707580326935,
+      "slice_status": "mid_feasible"
+    },
+    "contaminated": {
+      "single_iv": 0.4645143630490671,
+      "atm_iv": 0.2717073467490925,
+      "rmse": 0.007988174576120884,
+      "slice_status": "infeasible"
+    }
+  },
+  "runtime_seconds": 5.292581704,
+  "peak_rss_mib": 180.8828125
+}

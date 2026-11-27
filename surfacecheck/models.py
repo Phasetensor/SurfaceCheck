@@ -213,11 +213,28 @@ def propagation(
     return np.stack([refit(row) for row in sample])
 
 
-def ssvi_surface(model: SSVI,times: ArrayLike,atm_variances: ArrayLike,k: ArrayLike,query_times: ArrayLike) -> dict:
+def ssvi_surface(
+    model: SSVI,
+    times: ArrayLike,
+    atm_variances: ArrayLike,
+    k: ArrayLike,
+    query_times: ArrayLike,
+) -> dict:
     """Piecewise-linear ATM variance from zero; certificate on supplied maturity domain."""
-    t,theta,x,q=axis(times),vector(atm_variances),vector(k),vector(query_times)
-    if theta.shape!=t.shape or min(t)<=0 or min(theta)<=0 or min(q)<=0 or max(q)>t[-1]:
+    t, theta, x, q = axis(times), vector(atm_variances), vector(k), vector(query_times)
+    if (
+        theta.shape != t.shape
+        or min(t) <= 0
+        or min(theta) <= 0
+        or min(q) <= 0
+        or max(q) > t[-1]
+    ):
         raise ValueError("Invalid ATM term structure or time extrapolation")
-    levels=np.interp(q,np.r_[0,t],np.r_[0,theta])
-    certificate=bool(np.all(np.diff(theta)>=0) and model.sufficient())
-    return dict(variance=model.variance(x[None,:],levels[:,None]),theta=levels,sufficient_conditions_met=certificate,maturity_domain=(0.,float(t[-1])))
+    levels = np.interp(q, np.r_[0, t], np.r_[0, theta])
+    certificate = bool(np.all(np.diff(theta) >= 0) and model.sufficient())
+    return dict(
+        variance=model.variance(x[None, :], levels[:, None]),
+        theta=levels,
+        sufficient_conditions_met=certificate,
+        maturity_domain=(0.0, float(t[-1])),
+    )
